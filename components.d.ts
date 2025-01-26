@@ -17,6 +17,11 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
+    Toast: typeof import('primevue/toast')['default']
+    VButton: typeof import('./src/components/VButton.vue')['default']
+    VInput: typeof import('./src/components/VInput.vue')['default']
+    VModal: typeof import('./src/components/VModal.vue')['default']
+    VTextArea: typeof import('./src/components/vTextArea.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
 }

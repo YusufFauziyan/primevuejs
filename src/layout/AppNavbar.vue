@@ -10,15 +10,15 @@ const handleLoginClick = () => {
 
 <template>
   <div>
-    <div class="bg-common-black p-container-x py-2">
-      <div class="flex justify-between">
+    <div class="bg-primary py-2">
+      <div class="flex justify-between container items-center">
         <div />
         <div class="flex items-center gap-2">
-          <p class="text-common-white text-xs">Sign up and get 20% off to your first order.</p>
-          <a href="#" class="text-common-white underline text-xs">Sign Up Now</a>
+          <p class="text-xs text-primary-contrast">Sign up and get 20% off to your first order.</p>
+          <a href="#" class="underline text-xs text-primary-contrast">Sign Up Now</a>
         </div>
         <div class="cursor-pointer hover:opacity-50 duration-150">
-          <i class="pi-times"></i>
+          <i class="pi pi-times text-primary-contrast" style="font-size: 0.7rem"></i>
         </div>
       </div>
     </div>
@@ -28,31 +28,56 @@ const handleLoginClick = () => {
         <p class="font-bold">LOGO</p>
       </div>
       <div class="flex items-center justify-between gap-12 w-full">
-        <div class="flex flex-nowrap items-center gap-6">
-          <a href="#" class="font-medium text-xs whitespace-nowrap">Shop</a>
-          <a href="#" class="font-medium text-xs whitespace-nowrap">On Sale</a>
-          <a href="#" class="font-medium text-xs whitespace-nowrap">New Arrivals</a>
-          <a href="#" class="font-medium text-xs whitespace-nowrap">Brands</a>
+        <div class="flex flex-nowrap items-center gap-6 font-light">
+          <a href="#" class="text-xs whitespace-nowrap link">Shop</a>
+          <a href="#" class="text-xs whitespace-nowrap link">On Sale</a>
+          <a href="#" class="text-xs whitespace-nowrap link">New Arrivals</a>
+          <a href="#" class="text-xs whitespace-nowrap link">Brands</a>
         </div>
-        <div class="bg-primary w-full rounded-full flex items-center py-2 shadow px-4 gap-2">
-          <MagnifyingGlassIcon class="h-4 w-4 text-black/60" />
-          <i class="pi-search"></i>
+        <div class="w-full rounded-full flex items-center py-2 px-4 shadow border gap-2">
+          <i class="pi pi-search font-bold" style="font-size: 0.75rem"></i>
 
           <input
             type="text"
-            class="bg-transparent text-xs w-full focus:outline-none text-black/60"
+            class="bg-transparent text-xs w-full focus:outline-none"
             placeholder="Search for products..."
           />
         </div>
-        <button
-          class="bg-common-black border text-common-white hover:text-common-black hover:bg-common-white duration-500 px-4 py-2 rounded-full flex items-center text-xs font-medium whitespace-nowrap"
-          @click="handleLoginClick"
-        >
-          Login
-        </button>
+        <div class="">
+          <Button
+            label="Login"
+            size="small"
+            raised
+            rounded
+            style="padding-left: 1.5rem; padding-right: 1.5rem"
+            as="router-link"
+            to="/login"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.link {
+  position: relative;
+  text-decoration: none; /* Menghilangkan underline default */
+  color: inherit; /* Menggunakan warna teks default */
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px; /* Posisi underline */
+  width: 0; /* Mulai dengan lebar 0 */
+  height: 2px; /* Ketebalan underline */
+  background-color: currentColor; /* Warna underline sama dengan teks */
+  transition: width 0.3s ease; /* Animasi lebar underline */
+}
+
+.link:hover::after {
+  width: 70%; /* Lebar underline menjadi 100% saat hover */
+}
+</style>

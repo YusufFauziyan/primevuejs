@@ -1,4 +1,6 @@
 <script setup>
+import { ref, watchEffect } from 'vue'
+
 // brands 1
 import nike from '@/assets/images/brands/nike.png'
 import asics from '@/assets/images/brands/asics.png'
@@ -18,6 +20,12 @@ import rog from '@/assets/images/brands/rog.png'
 import samsung from '@/assets/images/brands/samsung.webp'
 import sony from '@/assets/images/brands/sony.png'
 import tnf from '@/assets/images/brands/tnf.png'
+
+// stores
+import nikeStore from '@/assets/images/store/nike-store.jpg'
+import appleStore from '@/assets/images/store/apple-store.jpg'
+import uniqloStore from '@/assets/images/store/uniqlo-store.webp'
+import zaraStore from '@/assets/images/store/zara-store.webp'
 
 const brands1 = [
   { name: 'Nike', src: nike },
@@ -40,17 +48,44 @@ const brands2 = [
   { name: 'Sony', src: sony },
   { name: 'The North Face', src: tnf },
 ]
+
+const storeImages = [
+  { name: 'Nike', src: nikeStore },
+  { name: 'Uniqlo', src: uniqloStore },
+  { name: 'zara', src: zaraStore },
+  { name: 'Apple', src: appleStore },
+]
+
+// Reactive state for image index
+const currentImageIndex = ref(0)
+
+// Function to change image every 10 seconds
+watchEffect(() => {
+  const interval = setInterval(() => {
+    currentImageIndex.value = (currentImageIndex.value + 1) % storeImages.length
+  }, 10000)
+
+  return () => clearInterval(interval)
+})
 </script>
 
 <template>
   <div class="">
     <!-- Added a single parent div -->
     <div class="min-h-[80vh] relative overflow-hidden">
-      <img
-        src="@/assets/images/nike-store.jpg"
+      <transition name="fade" mode="out-in">
+        <img
+          :src="storeImages[currentImageIndex].src"
+          :alt="storeImages[currentImageIndex].name"
+          class="object-cover w-full h-full absolute top-0 left-0"
+          :key="storeImages[currentImageIndex].name"
+        />
+      </transition>
+      <!-- <img
+        src="@/assets/images/store/nike-store.jpg"
         alt="style-product"
         class="object-cover w-full h-full absolute top-0 left-0"
-      />
+      /> -->
 
       <div
         class="absolute flex justify-between gap-20 items-center h-full w-full z-10 hero-gradient"
@@ -117,9 +152,14 @@ const brands2 = [
 </template>
 
 <style scoped>
-/* .hero-gradient {
-  background: linear-gradient(106deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.1) 100%);
-} */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease-in-out;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 
 .hero-gradient {
   background: linear-gradient(

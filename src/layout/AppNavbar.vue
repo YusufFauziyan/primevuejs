@@ -1,11 +1,32 @@
-<script setup lang="ts">
-import { useRouter } from 'vue-router'
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useThemeStore } from '@/stores/theme'
 
-const router = useRouter()
+const { darkTheme, setToogleDarkTheme } = useThemeStore()
 
-const handleLoginClick = () => {
-  router.push('/login')
+const isDarkTheme = ref(darkTheme)
+
+const toggleDarkMode = () => {
+  if (!document.startViewTransition) {
+    executeDarkModeToggle()
+
+    return
+  }
+
+  document.startViewTransition(() => executeDarkModeToggle())
 }
+
+const executeDarkModeToggle = () => {
+  document.documentElement.classList.toggle('app-dark')
+  isDarkTheme.value = !isDarkTheme.value
+  setToogleDarkTheme()
+}
+
+onMounted(() => {
+  if (darkTheme) {
+    document.documentElement.classList.add('app-dark')
+  }
+})
 </script>
 
 <template>
@@ -43,7 +64,11 @@ const handleLoginClick = () => {
             placeholder="Search for products..."
           />
         </div>
-        <div class="">
+
+        <Button type="button" variant="text" rounded size="small" @click="toggleDarkMode">
+          <i :class="['pi', { 'pi-moon': !isDarkTheme, 'pi-sun': isDarkTheme }]"></i>
+        </Button>
+        <div class="flex items-center gap-2">
           <Button
             label="Login"
             size="small"

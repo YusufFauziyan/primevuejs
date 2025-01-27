@@ -21,7 +21,7 @@ declare module 'vue' {
     VButton: typeof import('./src/components/VButton.vue')['default']
     VInput: typeof import('./src/components/VInput.vue')['default']
     VModal: typeof import('./src/components/VModal.vue')['default']
-    VTextArea: typeof import('./src/components/vTextArea.vue')['default']
+    VTextArea: typeof import('./src/components/VTextArea.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
 }

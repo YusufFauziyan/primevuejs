@@ -7,11 +7,15 @@ import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import 'primeicons/primeicons.css'
 
+// pinia
+import { createPinia } from 'pinia'
+
 // import '@/assets/styles.scss'
 import '@/assets/tailwind.css'
 import { DefaultTheme } from './theme/theme'
 
 const app = createApp(App)
+const pinia = createPinia()
 
 app.use(router)
 app.use(PrimeVue, {
@@ -24,5 +28,7 @@ app.use(PrimeVue, {
 })
 app.use(ToastService)
 app.use(ConfirmationService)
+
+app.use(pinia)
 
 app.mount('#app')

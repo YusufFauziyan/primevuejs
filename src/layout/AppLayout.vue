@@ -5,7 +5,7 @@ import AppNavbar from './AppNavbar.vue'
 </script>
 
 <template>
-  <div class="layout-wrapper" :class="containerClass">
+  <div class="layout-wrapper">
     <app-navbar></app-navbar>
     <!-- <app-sidebar></app-sidebar> -->
     <div class="layout-main-container">

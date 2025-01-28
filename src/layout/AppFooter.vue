@@ -4,22 +4,24 @@
   <div class="mt-40 relative">
     <div class="flex items-center justify-center flex-col">
       <div class="absolute -top-20 container">
-        <div class="bg-common-black py-8 px-12 rounded-xl grid grid-cols-2 gap-4 items-center">
-          <h1 class="font-extrabold text-2xl text-white">STAY UPTO DATE ABOUT OUR LATEST OFFERS</h1>
+        <div class="bg-primary shadow-md py-8 px-12 rounded-xl grid grid-cols-2 gap-4 items-center">
+          <h1 class="font-extrabold text-2xl text-primary-contrast">
+            STAY UPTO DATE ABOUT OUR LATEST OFFERS
+          </h1>
 
           <div class="flex items-center gap-3 flex-col justify-center px-24 overflow-hidden">
             <div class="relative w-full">
               <i
-                class="pi-envelope absolute top-1/2 left-4 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                class="pi pi-envelope absolute top-1/2 left-4 transform -translate-y-1/2 w-4 h-4 text-gray-400"
               />
               <input
                 type="email"
                 placeholder="Enter your email address"
-                class="w-full pl-10 border py-1.5 px-4 rounded-2xl text-common-black focus:outline-none text-xs"
+                class="w-full pl-10 border py-1.5 px-4 rounded-2xl focus:outline-none text-xs bg-white"
               />
             </div>
             <button
-              class="bg-white py-2 px-4 w-full rounded-2xl text-xs font-bold hover:bg-black duration-200 hover:text-white border-white border focus:outline-none"
+              class="bg-white dark:bg-black py-2 px-4 w-full rounded-2xl text-xs font-bold hover:bg-black duration-200 hover:text-white dark:hover:bg-white dark:hover:text-black border-white dark:hover:border-black border focus:outline-none"
             >
               Subscribe to Newsletter
             </button>
@@ -28,7 +30,7 @@
       </div>
     </div>
 
-    <div class="bg-primary h-[32vh] footer pt-1">
+    <div class="bg-primary-100 h-[32vh] footer pt-1">
       <div class="container">
         <div class="grid grid-cols-6 gap-4 mt-20 border-b pb-8">
           <div class="col-span-2 flex flex-col gap-4 justify-between">
@@ -123,12 +125,12 @@
 <style scoped>
 li:hover {
   text-decoration: underline;
-  color: var(--color-text-common-black);
 }
 
 .footer p,
 .footer h1,
-.footer h6 {
+.footer h6,
+.footer li {
   color: #000;
 }
 </style>

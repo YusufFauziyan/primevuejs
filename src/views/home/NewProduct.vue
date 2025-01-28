@@ -19,7 +19,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col justify-center items-center my-12 container">
+  <div class="flex flex-col my-12 container justify-center items-center">
     <h1 class="font-extrabold text-center text-4xl text-common-black tracking-tight text-shadow">
       NEW ARRIVALS
     </h1>
@@ -30,7 +30,7 @@ defineProps<{
         :key="index"
         class="flex flex-col items-start gap-2 cursor-pointer hover:scale-105 duration-300"
       >
-        <div class="w-full bg-primary rounded-2xl overflow-hidden shadow">
+        <div class="w-full bg-primary-100 rounded-2xl overflow-hidden shadow">
           <img
             :src="product.images[0].url"
             alt="`${product.name}`"
@@ -38,10 +38,10 @@ defineProps<{
             loading="lazy"
           />
         </div>
-        <p class="font-bold line-clamp-1 capitalize">{{ product.name }}</p>
+        <p class="font-bold bg-s line-clamp-1 capitalize">{{ product.name }}</p>
         <div class="flex gap-2 items-center">
           <div class="flex items-center gap-1">
-            <i v-for="n in 5" :key="n" class="pi-star h-4 text-yellow-400" />
+            <i v-for="n in 5" :key="n" class="pi pi-star-fill h-4 text-yellow-400" />
           </div>
           <p class="text-xs font-medium">5/<span class="opacity-60">5</span></p>
         </div>

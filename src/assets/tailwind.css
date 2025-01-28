@@ -1,15 +1,11 @@
 /* Import font-family.css harus di bagian paling awal */
 @import './fonts/font-family.css';
-
 /* Tailwind Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Variabel CSS */
-:root {
-  --color-text: #2c3e50;
-}
 
 /* Global styles untuk body */
 @layer base {
@@ -18,5 +14,19 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  p {
+    font-family: 'Satoshi', sans-serif;
+  }
+
+  /* Menerapkan IntegralCF pada elemen <h1> hingga <h6> */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'IntegralCF', sans-serif;
   }
 }

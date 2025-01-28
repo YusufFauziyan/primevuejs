@@ -30,7 +30,7 @@ defineProps<{
         :key="index"
         class="flex flex-col items-start gap-2 cursor-pointer hover:scale-105 duration-300"
       >
-        <div class="w-full bg-primary rounded-2xl overflow-hidden shadow">
+        <div class="w-full bg-primary-100 rounded-2xl overflow-hidden shadow">
           <img
             :src="product.images[0].url"
             alt="`${product.name}`"
@@ -41,7 +41,7 @@ defineProps<{
         <p class="font-bold line-clamp-1 capitalize">{{ product.name }}</p>
         <div class="flex gap-2 items-center">
           <div class="flex items-center gap-1">
-            <i v-for="n in 5" :key="n" class="pi-star h-4 text-yellow-400" />
+            <i v-for="n in 5" :key="n" class="pi pi-star-fill h-4 text-yellow-400" />
           </div>
           <p class="text-xs font-medium">5/<span class="opacity-60">5</span></p>
         </div>

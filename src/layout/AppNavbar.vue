@@ -1,10 +1,18 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+
+// store pinia
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
 
+//
 const { darkTheme, setToogleDarkTheme } = useThemeStore()
+const { clearUser, ...auth } = useAuthStore()
 
+// ref
 const isDarkTheme = ref(darkTheme)
+const openPopoverProfile = ref()
+const user = ref(auth.user)
 
 const toggleDarkMode = () => {
   if (!document.startViewTransition) {
@@ -16,10 +24,20 @@ const toggleDarkMode = () => {
   document.startViewTransition(() => executeDarkModeToggle())
 }
 
+const togglePopoverProfile = (e) => {
+  openPopoverProfile.value.toggle(e)
+}
+
 const executeDarkModeToggle = () => {
   document.documentElement.classList.toggle('app-dark')
   isDarkTheme.value = !isDarkTheme.value
   setToogleDarkTheme()
+}
+
+const handleRemoveUser = () => {
+  clearUser()
+  openPopoverProfile.value.hide()
+  user.value = null
 }
 
 onMounted(() => {
@@ -68,7 +86,7 @@ onMounted(() => {
         <Button type="button" variant="text" rounded size="small" @click="toggleDarkMode">
           <i :class="['pi', { 'pi-moon': !isDarkTheme, 'pi-sun': isDarkTheme }]"></i>
         </Button>
-        <div class="flex items-center gap-2">
+        <div v-if="!user">
           <Button
             label="Login"
             size="small"
@@ -78,6 +96,43 @@ onMounted(() => {
             as="router-link"
             to="/login"
           />
+        </div>
+        <div v-if="user" class="flex items-end gap-6">
+          <OverlayBadge
+            value="4"
+            severity="danger"
+            size="small"
+            class="cursor-pointer hover:opacity-80 duration-150"
+          >
+            <i class="pi pi-shopping-cart" style="font-size: 1rem"></i>
+          </OverlayBadge>
+
+          <Avatar
+            icon="pi pi-user"
+            class="bg-primary-contrast text-primary cursor-pointer hover:opacity-80 duration-150"
+            shape="circle"
+            @click="togglePopoverProfile"
+          />
+
+          <Popover ref="openPopoverProfile" class="">
+            <div class="flex flex-col gap-2">
+              <Button
+                label="Profile"
+                icon="pi pi-user"
+                variant="text"
+                size="small"
+                class="w-full"
+              />
+              <Button
+                label="Logout"
+                icon="pi pi-sign-out"
+                variant="text"
+                size="small"
+                class="w-full"
+                @click="handleRemoveUser"
+              />
+            </div>
+          </Popover>
         </div>
       </div>
     </div>

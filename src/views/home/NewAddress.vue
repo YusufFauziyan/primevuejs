@@ -11,10 +11,10 @@ import { updateUserInfo } from '@/services/userService'
 import { VueTelInput } from 'vue-tel-input'
 
 // component
-import VModal from '@/components/VModal.vue'
-import VInput from '@/components/VInput.vue'
-import VTextArea from '@/components/VTextArea.vue'
-import VButton from '@/components/VButton.vue'
+// import VModal from '@/components/VModal.vue'
+// import VInput from '@/components/VInput.vue'
+// import VTextArea from '@/components/VTextArea.vue'
+// import VButton from '@/components/VButton.vue'
 
 // define props
 const props = defineProps({
@@ -117,7 +117,7 @@ onMounted(() => {
   >
     <form @submit.prevent="onSubmit">
       <div class="grid grid-cols-2 gap-2 w-full">
-        <VInput
+        <!-- <VInput
           v-model="addressTitle"
           class="col-span-2"
           id="addressTitle"
@@ -160,7 +160,7 @@ onMounted(() => {
           label="Save Address"
           size="sm"
           :loading="loadingSubmit"
-        />
+        /> -->
       </div>
     </form>
   </VModal>

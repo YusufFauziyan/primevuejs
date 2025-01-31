@@ -1,22 +1,4 @@
-<script setup lang="ts">
-import { formatRupiah } from '../../utils/format-number'
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  discount: number
-  rating: number
-  images: {
-    url: string
-    alt: string
-  }[]
-}
-
-defineProps<{
-  products: Product[]
-}>()
-</script>
+<script setup></script>
 
 <template>
   <div class="bg-primary-100 px-12 py-20 rounded-lg container">

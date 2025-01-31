@@ -1,21 +1,13 @@
-<script setup lang="ts">
+<script setup>
+import { array } from 'i/lib/util'
 import { formatRupiah } from '../../utils/format-number'
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  discount: number
-  rating: number
-  images: {
-    url: string
-    alt: string
-  }[]
-}
-
-defineProps<{
-  products: Product[]
-}>()
+defineProps({
+  products: {
+    type: array,
+    required: true,
+  },
+})
 </script>
 
 <template>

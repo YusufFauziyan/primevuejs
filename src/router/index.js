@@ -1,4 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue'
+import BreadCumbLayoutVue from '@/layout/BreadCumbLayout.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -12,6 +13,11 @@ const router = createRouter({
           path: '/',
           name: 'dashboard',
           component: () => import('@/views/home/view/HomeView.vue'),
+        },
+        {
+          path: '/shop',
+          component: BreadCumbLayoutVue,
+          children: [],
         },
       ],
     },

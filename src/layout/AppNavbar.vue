@@ -68,10 +68,10 @@ onMounted(() => {
       </div>
       <div class="flex items-center justify-between gap-12 w-full">
         <div class="flex flex-nowrap items-center gap-6 font-light">
-          <a href="#" class="text-xs whitespace-nowrap link">Shop</a>
-          <a href="#" class="text-xs whitespace-nowrap link">On Sale</a>
-          <a href="#" class="text-xs whitespace-nowrap link">New Arrivals</a>
-          <a href="#" class="text-xs whitespace-nowrap link">Brands</a>
+          <router-link to="/shop" class="text-xs whitespace-nowrap link">Shop</router-link>
+          <router-link to="#" class="text-xs whitespace-nowrap link">On Sale</router-link>
+          <router-link to="#" class="text-xs whitespace-nowrap link">New Arrivals</router-link>
+          <router-link to="#" class="text-xs whitespace-nowrap link">Brands</router-link>
         </div>
         <div class="w-full rounded-full flex items-center py-2 px-4 shadow border gap-2">
           <i class="pi pi-search font-bold" style="font-size: 0.75rem"></i>

@@ -27,7 +27,7 @@ const items = computed(() => {
 </script>
 
 <template>
-  <div class="flex container">
+  <div class="container">
     <Breadcrumb :home="home" :model="items" class="text-xs">
       <template #item="{ item, props }">
         <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
@@ -41,6 +41,8 @@ const items = computed(() => {
         </a>
       </template>
     </Breadcrumb>
+
+    <router-view></router-view>
   </div>
 </template>
 

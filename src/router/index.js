@@ -17,7 +17,13 @@ const router = createRouter({
         {
           path: '/shop',
           component: BreadCumbLayoutVue,
-          children: [],
+          children: [
+            {
+              path: '/shop',
+              name: 'Shop',
+              component: () => import('@/views/shop/view/ShopView.vue'),
+            },
+          ],
         },
       ],
     },

@@ -4,7 +4,7 @@ import { formatRupiah } from '../../utils/format-number'
 
 defineProps({
   products: {
-    type: array,
+    type: Array,
     required: true,
   },
 })

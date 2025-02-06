@@ -15,11 +15,16 @@ const priceValue = ref([20, 80])
     </div>
     <Divider style="margin: 0" />
     <div class="">
-      <ul class="flex flex-col">
+      <ul class="flex flex-col gap-1">
         <li
           v-for="category in LIST_CATEGORIES"
           :key="category"
-          class="text-sm text-color hover:bg-primary hover:text-primary-contrast rounded-md p-2 duration-150 cursor-pointer flex justify-between items-center"
+          :class="[
+            'text-sm flex rounded-md p-2 duration-150 cursor-pointer justify-between items-center',
+            category === 'ALL'
+              ? 'font-bold bg-primary text-primary-contrast'
+              : 'text-color hover:bg-primary hover:text-primary-contrast',
+          ]"
         >
           <a href="#" class="opacity-80">{{ category }}</a>
           <i class="pi pi-angle-right opacity-60"></i>
@@ -49,3 +54,5 @@ const priceValue = ref([20, 80])
     <!-- <Divider style="margin: 0" /> -->
   </main>
 </template>
+
+<style scoped></style>

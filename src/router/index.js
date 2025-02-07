@@ -23,6 +23,12 @@ const router = createRouter({
               name: 'Shop',
               component: () => import('@/views/shop/view/ShopView.vue'),
             },
+            {
+              path: ':id',
+              name: 'ShopDetail',
+              component: () => import('@/views/shop/view/ShopDetailView.vue'),
+              props: true,
+            },
           ],
         },
       ],

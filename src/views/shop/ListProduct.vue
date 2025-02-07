@@ -26,34 +26,35 @@ defineProps({
       </div>
     </div>
     <div class="grid grid-cols-3 gap-4 my-8">
-      <div
-        v-for="(product, index) in products"
-        :key="index"
-        class="flex flex-col items-start gap-2 cursor-pointer hover:scale-105 duration-300"
-      >
-        <div class="w-full bg-primary-100 rounded-2xl overflow-hidden shadow">
-          <img
-            :src="product.images[0].url"
-            alt="`${product.name}`"
-            class="w-full object-contain h-[250px]"
-            loading="lazy"
-          />
-        </div>
-        <p class="font-bold line-clamp-1 capitalize">{{ product.name }}</p>
-        <div class="flex gap-2 items-center">
-          <div class="flex items-center gap-1">
-            <i v-for="n in 5" :key="n" class="pi pi-star-fill h-4 text-yellow-400" />
+      <div v-for="(product, index) in products" :key="index">
+        <router-link
+          :to="`/shop/${product.id}`"
+          class="flex flex-col items-start gap-2 cursor-pointer hover:scale-105 duration-300"
+        >
+          <div class="w-full bg-primary-100 rounded-2xl overflow-hidden shadow">
+            <img
+              :src="product.images[0].url"
+              :alt="product.name"
+              class="w-full object-contain h-[250px]"
+              loading="lazy"
+            />
           </div>
-          <p class="text-xs font-medium">5/<span class="opacity-60">5</span></p>
-        </div>
-        <div class="flex items-center gap-2">
-          <p class="text-xs font-bold">
-            {{ formatRupiah(Number(product.price) - Number(product.discount)) }}
-          </p>
-          <p v-if="Number(product.discount)" class="text-xs font-bold line-through opacity-50">
-            {{ formatRupiah(Number(product.price)) }}
-          </p>
-        </div>
+          <p class="font-bold line-clamp-1 capitalize">{{ product.name }}</p>
+          <div class="flex gap-2 items-center">
+            <div class="flex items-center gap-1">
+              <i v-for="n in 5" :key="n" class="pi pi-star-fill h-4 text-yellow-400" />
+            </div>
+            <p class="text-xs font-medium">5/<span class="opacity-60">5</span></p>
+          </div>
+          <div class="flex items-center gap-2">
+            <p class="text-xs font-bold">
+              {{ formatRupiah(Number(product.price) - Number(product.discount)) }}
+            </p>
+            <p v-if="Number(product.discount)" class="text-xs font-bold line-through opacity-50">
+              {{ formatRupiah(Number(product.price)) }}
+            </p>
+          </div>
+        </router-link>
       </div>
     </div>
 

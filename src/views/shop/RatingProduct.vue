@@ -1,5 +1,6 @@
 <script setup>
 import { ref, toRefs, onMounted } from 'vue'
+import NoReview from '@/components/NoReview.vue'
 
 defineProps({
   product: {
@@ -18,5 +19,7 @@ defineProps({
         <Button icon="pi pi-sliders-v" size="small" rounded />
       </div>
     </div>
+
+    <NoReview />
   </div>
 </template>

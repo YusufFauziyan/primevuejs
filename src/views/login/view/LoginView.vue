@@ -1,6 +1,6 @@
 <script setup>
 import { watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { login, loginWithGoogle } from '@/services/authService'
@@ -24,6 +24,7 @@ const authStore = useAuthStore()
 
 // router
 const router = useRouter()
+const route = useRoute()
 
 const { handleSubmit } = useForm({
   validationSchema: schema,
@@ -40,7 +41,9 @@ const onSubmit = handleSubmit(async (values) => {
     const res = await login(values.email, values.password)
 
     authStore.setUser(res)
-    router.push('/')
+
+    const returnTo = route.query.returnTo || '/'
+    router.push(returnTo)
   } catch (error) {
     console.error('Login failed:', error)
   }
@@ -54,7 +57,9 @@ const callbackGoogle = async (response) => {
     const res = await loginWithGoogle(credential)
 
     authStore.setUser(res)
-    router.push('/')
+
+    const returnTo = route.query.returnTo || '/'
+    router.push(returnTo)
   } catch (error) {
     console.error('Login with Google failed:', error)
   }
@@ -64,7 +69,8 @@ watch(
   () => authStore.user,
   (user) => {
     if (user) {
-      router.push('/')
+      const returnTo = route.query.returnTo || '/'
+      router.push(returnTo)
     }
   },
   { immediate: true },

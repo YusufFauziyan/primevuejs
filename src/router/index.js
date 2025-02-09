@@ -39,6 +39,10 @@ const router = createRouter({
       component: () => import('@/views/login/view/LoginView.vue'),
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    // Selalu scroll ke atas saat berpindah rute
+    return { top: 0 }
+  },
 })
 
 export default router

@@ -77,4 +77,8 @@ defineProps({
   width: 28px;
   height: 28px;
 }
+
+img {
+  mix-blend-mode: multiply;
+}
 </style>

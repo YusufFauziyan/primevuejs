@@ -7,3 +7,7 @@ export const getUserInfo = async () => {
 export const updateUserInfo = async (id, data) => {
   return await put(`/collection/user/${id}`, data)
 }
+
+export const getUserById = async (id) => {
+  return await get(`/collection/user/${id}`)
+}

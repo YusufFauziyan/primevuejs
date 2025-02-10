@@ -1,14 +1,20 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, toRefs, onMounted } from 'vue'
+import { ref, toRefs, watch } from 'vue'
 import { formatRupiah } from '@/utils/format-number'
-import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue'
+import { faker } from '@faker-js/faker'
 
 // api
 import { createOrder } from '@/services/orderService'
 import { getAllAddress } from '@/services/addressService'
 import { createPayment } from '@/services/paymentService'
+import { getUserById } from '@/services/userService'
+import { createCart } from '@/services/cartService'
+
+// store
+import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 
 // components
 
@@ -24,12 +30,15 @@ const toast = useToast()
 
 // store
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 // ref
 const { product } = toRefs(props)
+const seller = ref(null)
 const countProduct = ref(1)
 const selectedImage = ref(0)
 const loadingSubmit = ref(false)
+const loadingAddToCart = ref(false)
 
 const increment = () => {
   if (countProduct.value >= product.value.stock_quantity) return
@@ -81,13 +90,46 @@ const handleBuyNow = async () => {
     loadingSubmit.value = false
   }
 }
+
+const handleAddToCart = async () => {
+  if (!authStore.user) {
+    return router.push({ name: 'Login', query: { returnTo: router.currentRoute.value.fullPath } })
+  }
+
+  loadingAddToCart.value = true
+
+  try {
+    await createCart({
+      product_id: product.value.id,
+      quantity: countProduct.value,
+    })
+
+    cartStore.setTotalCart(cartStore.totalCart + 1)
+    showToast('success', 'Add to Cart', 'Product has been added to cart.')
+  } catch (error) {
+    console.error(error)
+    showToast('error', 'Add to Cart', 'Could not add product to cart.')
+  } finally {
+    loadingAddToCart.value = false
+  }
+}
+
+watch(
+  () => product.value,
+  async (newVal) => {
+    if (newVal.user_id) {
+      // get seller data
+      seller.value = await getUserById(newVal.user_id)
+    }
+  },
+)
 </script>
 
 <template>
   <div class="flex gap-8 my-4">
     <div class="w-[60%] h-[50vh] flex gap-4">
       <!-- Thumbnail Images (Left Side) -->
-      <div :class="['flex flex-col gap-4', { 'justify-between': product?.images.length >= 4 }]">
+      <div :class="['flex flex-col gap-4', { 'justify-between': product?.images.length >= 5 }]">
         <div
           v-for="({ url }, index) in product?.images.slice(0, 4)"
           :key="index"
@@ -99,19 +141,40 @@ const handleBuyNow = async () => {
         >
           <img :src="url" alt="Thumbnail" class="w-full h-full object-cover" />
         </div>
+        <div
+          v-if="product?.images.length >= 5"
+          class="w-[150px] h-[150px] rounded-lg shadow-md overflow-hidden cursor-pointer border flex items-center justify-center"
+        >
+          <p class="font-medium text-xs">+{{ product?.images.length - 4 }} More</p>
+        </div>
       </div>
       <!-- Main Image (Right Side) -->
       <div class="flex-1 rounded-xl shadow-xl overflow-hidden bg-primary-100 inline-block">
         <img
           :src="product?.images[selectedImage]?.url"
           alt="Main Product"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-contain"
         />
       </div>
     </div>
     <div class="flex-1 h-[50vh] flex flex-col gap-4 justify-between">
       <!-- Product Info -->
       <div class="flex flex-col gap-2">
+        <div class="flex justify-between gap-4 items-center mb-2">
+          <div class="flex items-center gap-2">
+            <Avatar
+              :image="faker.image.avatar()"
+              :name="seller?.username"
+              size="small"
+              shape="circle"
+            />
+            <p>{{ seller?.username }}</p>
+          </div>
+
+          <p class="text-xs text-primary-400">
+            Stock Left: <span>{{ product?.stock_quantity }}</span>
+          </p>
+        </div>
         <h1 class="text-2xl font-bold text-ellipsis">{{ product?.name }}</h1>
         <div class="flex items-center gap-2">
           <span class="flex gap-1">
@@ -124,11 +187,11 @@ const handleBuyNow = async () => {
           </span>
           <p class="text-primary-400">5/5</p>
         </div>
-        <div class="flex items-center gap-4 mt-1">
-          <p class="font-bold text-lg">
+        <div class="flex items-center gap-4 mt-4">
+          <p class="font-bold text-2xl">
             {{ formatRupiah(Number(product?.price) - Number(product?.discount)) }}
           </p>
-          <p class="text-lg line-through opacity-50" v-if="product?.discount">
+          <p class="font-medium line-through opacity-50" v-if="product?.discount">
             {{ formatRupiah(Number(product?.price)) }}
           </p>
           <Chip
@@ -139,37 +202,41 @@ const handleBuyNow = async () => {
             v-if="product?.discount"
           />
         </div>
-        <p class="text-sm text-primary/75">{{ product?.description }}</p>
+        <p class="text-sm text-primary/75 mt-4">{{ product?.description }}</p>
       </div>
+
       <!-- Add to Cart -->
-      <div class="flex items-center gap-4 border-t pt-4">
-        <!-- <p class="text-xs text-primary-300 text-center">
-          {{ product?.stock_quantity }} <br />
-          Stock Left
-        </p> -->
-        <div
-          class="py-2 px-2 bg-primary rounded-full flex gap-4 items-center justify-between w-[120px]"
-        >
-          <i
-            class="pi pi-plus text-primary-contrast cursor-pointer p-2"
-            style="font-size: 0.78rem"
-            @click="increment"
-          ></i>
-          <span class="text-sm font-bold text-primary-contrast">{{ countProduct }}</span>
-          <i
-            class="pi pi-minus text-primary-contrast cursor-pointer p-2"
-            style="font-size: 0.78rem"
-            @click="decrement"
-          ></i>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2">
+          <div class="border shadow-lg ml-auto rounded-lg flex gap-4 items-center justify-between">
+            <i
+              class="pi pi-plus cursor-pointer px-3 py-3 text-primary/60 border-r"
+              style="font-size: 0.78rem"
+              @click="increment"
+            ></i>
+            <span class="text-xs font-bold px-2">{{ countProduct }}</span>
+            <i
+              class="pi pi-minus cursor-pointer px-3 py-3 text-primary/60 border-l"
+              style="font-size: 0.78rem"
+              @click="decrement"
+            ></i>
+          </div>
+          <button
+            class="bg-primary text-primary-contrast py-2 px-4 rounded-lg font-medium flex-1 hover:bg-primary-600 duration-200"
+            @click="handleBuyNow"
+            :loading="loadingSubmit"
+          >
+            <i class="pi pi-shopping-bag mr-2"></i>
+            Buy Now
+          </button>
+          <Button
+            icon="pi pi-shopping-cart"
+            size="small"
+            severity="secondary"
+            @click="handleAddToCart"
+            :loading="loadingAddToCart"
+          />
         </div>
-        <button
-          class="bg-primary text-primary-contrast py-2 px-4 rounded-full flex-1"
-          @click="handleBuyNow"
-          :loading="loadingSubmit"
-        >
-          Buy Now
-        </button>
-        <Button variant="text" icon="pi pi-shopping-cart" rounded />
       </div>
     </div>
   </div>

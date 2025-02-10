@@ -4,10 +4,12 @@ import { ref, onMounted, watch } from 'vue'
 // store pinia
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 
 //
 const { darkTheme, setToogleDarkTheme } = useThemeStore()
 const { clearUser, ...auth } = useAuthStore()
+const cartCount = useCartStore()
 
 // ref
 const isDarkTheme = ref(darkTheme)
@@ -99,13 +101,22 @@ onMounted(() => {
         </div>
         <div v-if="user" class="flex items-end gap-6">
           <OverlayBadge
-            value="4"
+            v-if="cartCount.totalCart > 0"
+            :value="cartCount.totalCart"
             severity="danger"
             size="small"
             class="cursor-pointer hover:opacity-80 duration-150"
           >
             <i class="pi pi-shopping-cart" style="font-size: 1rem"></i>
           </OverlayBadge>
+
+          <Button
+            v-if="cartCount.totalCart < 1"
+            icon="pi pi-shopping-cart"
+            size="small"
+            variant="text"
+            class="cursor-pointer hover:opacity-80 duration-150"
+          />
 
           <Avatar
             icon="pi pi-user"

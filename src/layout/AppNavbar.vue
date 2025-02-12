@@ -100,15 +100,17 @@ onMounted(() => {
           />
         </div>
         <div v-if="user" class="flex items-end gap-6">
-          <OverlayBadge
-            v-if="cartCount.totalCart > 0"
-            :value="cartCount.totalCart"
-            severity="danger"
-            size="small"
-            class="cursor-pointer hover:opacity-80 duration-150"
-          >
-            <i class="pi pi-shopping-cart" style="font-size: 1rem"></i>
-          </OverlayBadge>
+          <router-link to="/cart">
+            <OverlayBadge
+              v-if="cartCount.totalCart > 0"
+              :value="cartCount.totalCart"
+              severity="danger"
+              size="small"
+              class="cursor-pointer hover:opacity-80 duration-150"
+            >
+              <i class="pi pi-shopping-cart" style="font-size: 1rem"></i>
+            </OverlayBadge>
+          </router-link>
 
           <Button
             v-if="cartCount.totalCart < 1"

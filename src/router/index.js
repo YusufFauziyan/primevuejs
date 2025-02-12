@@ -2,6 +2,16 @@ import AppLayout from '@/layout/AppLayout.vue'
 import BreadCumbLayoutVue from '@/layout/BreadCumbLayout.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
+// function required auth
+function requireAuth(to, from, next) {
+  const token = localStorage.getItem('access_token') // Get token from localStorage
+  if (!token) {
+    next({ name: 'Login' }) // Redirect to login page if token not found
+  } else {
+    next() // Continue to the next route
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -15,7 +25,7 @@ const router = createRouter({
           component: () => import('@/views/home/view/HomeView.vue'),
         },
         {
-          path: '/shop',
+          path: '/',
           component: BreadCumbLayoutVue,
           children: [
             {
@@ -24,10 +34,16 @@ const router = createRouter({
               component: () => import('@/views/shop/view/ShopView.vue'),
             },
             {
-              path: ':id',
+              path: '/shop/:id',
               name: 'ShopDetail',
               component: () => import('@/views/shop/view/ShopDetailView.vue'),
               props: true,
+            },
+            {
+              path: '/cart',
+              name: 'Cart',
+              component: () => import('@/views/cart/view/CartView.vue'),
+              beforeEnter: requireAuth,
             },
           ],
         },

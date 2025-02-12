@@ -1,5 +1,5 @@
 // src/stores/auth.ts
-import { getAllCart } from '@/services/cartService'
+import { getTotalCart } from '@/services/cartService'
 import { defineStore } from 'pinia'
 
 export const useCartStore = defineStore('cart', {
@@ -17,10 +17,10 @@ export const useCartStore = defineStore('cart', {
       if (token) {
         try {
           // Panggil API untuk mendapatkan data cart
-          const cart = await getAllCart()
+          const { total } = await getTotalCart()
 
           // Simpan data cart ke store
-          this.setTotalCart(cart.length)
+          this.setTotalCart(total)
         } catch (error) {
           console.error('Failed to fetch cart:', error)
         }

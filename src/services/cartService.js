@@ -8,6 +8,10 @@ export const getCartById = async (id) => {
   return await get(`/collection/cart/${id}`)
 }
 
+export const getTotalCart = async () => {
+  return await get('/collection/cart/total')
+}
+
 export const createCart = async (cart) => {
   return await post('/collection/cart', cart)
 }

@@ -1,26 +1,146 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { faker } from '@faker-js/faker'
 import { handleApiError } from '@/utils/api'
-import { getAllCart } from '@/services/cartService'
+import { deleteCart, getAllCart, updateCart } from '@/services/cartService'
 import { getUserById } from '@/services/userService'
 import { formatRupiah } from '@/utils/format-number'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import { useCartStore } from '@/stores/cart'
+
+// hook
+const toast = useToast()
+const cartStore = useCartStore()
 
 // ref
-const carts = ref()
+const carts = ref([])
 const loadingCarts = ref(true)
-const countProduct = ref(1)
+const debounceTimeout = ref(null)
+const selectedCart = ref(new Set())
+const confirm = useConfirm()
 
 const calculateTotalPrice = (finalPrice, qty) => {
   return formatRupiah(finalPrice * qty)
 }
 
+const toggleCartSelection = (cartId) => {
+  if (selectedCart.value.has(cartId)) {
+    selectedCart.value.delete(cartId)
+  } else {
+    selectedCart.value.add(cartId)
+  }
+}
+
+// Menghitung total harga dari item terpilih
+const subtotal = computed(() => {
+  return carts.value.reduce((acc, cart) => {
+    return selectedCart.value.has(cart.id) ? acc + cart.product.price * cart.quantity : acc
+  }, 0)
+})
+
+// Menghitung total diskon dari item terpilih
+const totalDiscount = computed(() => {
+  return carts.value.reduce((acc, cart) => {
+    return selectedCart.value.has(cart.id) ? acc + cart.product.discount * cart.quantity : acc
+  }, 0)
+})
+
+// increment
+const incrementQty = (cartId) => {
+  const cart = carts.value.find((cart) => cart.id === cartId)
+
+  if (!cart) return
+
+  cart.quantity++
+
+  // cancel the previous debounce
+  if (debounceTimeout.value) {
+    clearTimeout(debounceTimeout.value)
+  }
+
+  // set time out
+  debounceTimeout.value = setTimeout(() => {
+    updateCartQuantity(cartId, cart.quantity)
+  }, 500)
+}
+
+// decrement
+const decrementQty = (cartId) => {
+  const cart = carts.value.find((cart) => cart.id === cartId)
+
+  if (!cart || cart.quantity <= 1) return
+
+  cart.quantity--
+
+  // cancel the previous debounce
+  if (debounceTimeout.value) {
+    clearTimeout(debounceTimeout.value)
+  }
+
+  // set time out
+  debounceTimeout.value = setTimeout(() => {
+    updateCartQuantity(cartId, cart.quantity)
+  }, 500)
+}
+
+// delete cart
+const handleDeleteCart = (event, cartId) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: 'Do you want to delete this cart?',
+    icon: 'pi pi-info-circle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Delete',
+      severity: 'danger',
+    },
+    accept: async () => {
+      // Delete cart
+      try {
+        await deleteCart(cartId)
+
+        // Update
+        carts.value = carts.value.filter((cart) => cart.id !== cartId)
+        selectedCart.value.delete(cartId)
+        cartStore.setTotalCart(cartStore.totalCart--)
+        toast.add({ severity: 'success', summary: 'Deleted', detail: 'Card deleted', life: 3000 })
+      } catch (error) {
+        toast.add({
+          severity: 'error',
+          summary: 'Failed',
+          detail: 'Failed to delete cart',
+          life: 3000,
+        })
+        console.error('Failed to delete cart:', error)
+      }
+    },
+  })
+}
+
 // fetch
+const updateCartQuantity = async (cartId, quantity) => {
+  try {
+    await updateCart(cartId, {
+      quantity,
+    }) // Panggil API untuk update quantity
+    console.info(`Cart ${cartId} updated to quantity: ${quantity}`)
+  } catch (error) {
+    console.error('Failed to update cart quantity:', error)
+  }
+}
+
 const fetchCarts = async () => {
   loadingCarts.value = true
 
   try {
-    const res = await getAllCart()
+    const res = await getAllCart({
+      limit: 1000,
+    })
 
     const cartValues = await Promise.all(
       res.items.map(async (item) => ({
@@ -38,9 +158,7 @@ const fetchCarts = async () => {
   }
 }
 
-onMounted(() => {
-  fetchCarts()
-})
+onMounted(fetchCarts)
 </script>
 
 <template>
@@ -51,17 +169,22 @@ onMounted(() => {
       <div class="flex-1 flex flex-col gap-4 max-h-[75vh] overflow-y-auto">
         <div
           v-for="(cart, index) in carts"
-          :key="index"
+          :key="cart.id"
           class="border p-4 rounded-xl flex flex-col gap-4"
         >
           <div class="flex items-center gap-4">
-            <Checkbox binary />
-            <Avatar :image="faker.image.avatar()" size="small" shape="circle" />
+            <Checkbox
+              binary
+              @change="toggleCartSelection(cart.id)"
+              :value="selectedCart.has(cart.id)"
+            />
+            <Avatar icon="pi pi-user" size="small" shape="circle" />
             <p class="font-medium capitalize">{{ cart?.seller?.username }}</p>
           </div>
           <div class="flex justify-between items-start gap-4 h-[100px]">
             <div class="flex items-start gap-4 h-full">
-              <Checkbox binary />
+              <!-- <Checkbox binary /> -->
+              <div class="w-4" />
               <div
                 class="flex-1 rounded border overflow-hidden bg-primary-100 inline-block w-[100px] h-full"
               >
@@ -109,16 +232,19 @@ onMounted(() => {
                   rounded
                   aria-label="Delete Product"
                   size="small"
+                  @click="(e) => handleDeleteCart(e, cart.id)"
                 />
                 <div class="border shadow ml-auto rounded flex gap-2 items-center justify-between">
                   <i
-                    class="pi pi-plus cursor-pointer px-2 py-2 text-primary/60 border-r"
+                    class="pi pi-minus cursor-pointer px-2 py-2 text-primary/60 border-r"
                     style="font-size: 0.5rem"
+                    @click="decrementQty(cart.id)"
                   ></i>
-                  <span class="text-xs font-bold px-2">{{ countProduct }}</span>
+                  <span class="text-xs font-bold px-2">{{ cart.quantity }}</span>
                   <i
-                    class="pi pi-minus cursor-pointer px-2 py-2 text-primary/60 border-l"
+                    class="pi pi-plus cursor-pointer px-2 py-2 text-primary/60 border-l"
                     style="font-size: 0.5rem"
+                    @click="incrementQty(cart.id)"
                   ></i>
                 </div>
               </div>
@@ -128,14 +254,31 @@ onMounted(() => {
       </div>
       <div class="border p-4 rounded-xl flex flex-col gap-4 min-w-[300px]">
         <p class="font-bold">Summary Order</p>
-        <div class="flex items-center justify-between gap-2">
-          <p class="text-sm">Subtotal:</p>
-          <p class="text-sm font-medium">Rp 1.000.000</p>
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm">Total Price:</p>
+            <p class="text-sm">{{ formatRupiah(subtotal) }}</p>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm">Total Discount:</p>
+            <p class="text-sm line-through">{{ formatRupiah(totalDiscount) }}</p>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm">Shipping:</p>
+            <p class="text-sm">{{ formatRupiah(0) }}</p>
+          </div>
+          <Divider />
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm">Total:</p>
+            <p class="text-sm font-bold">{{ formatRupiah(subtotal - totalDiscount) }}</p>
+          </div>
         </div>
-        <Button label="Checkout" variant="primary" size="small" />
+        <Button label="Checkout" icon="pi pi-shopping-cart" variant="primary" size="small" />
       </div>
     </div>
   </main>
+
+  <ConfirmPopup></ConfirmPopup>
 </template>
 
 <style scoped>

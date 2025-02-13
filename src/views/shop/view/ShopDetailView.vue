@@ -16,7 +16,6 @@ const product = ref(null)
 const loadingProduct = ref(true)
 
 const fetchProduct = async () => {
-  console.log({ id: id.value })
   loadingProduct.value = true
   try {
     const res = await getProductById(id.value)

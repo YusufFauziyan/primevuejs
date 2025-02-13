@@ -10,7 +10,7 @@ import { createOrder } from '@/services/orderService'
 import { getAllAddress } from '@/services/addressService'
 import { createPayment } from '@/services/paymentService'
 import { getUserById } from '@/services/userService'
-import { createCart } from '@/services/cartService'
+import { createCart, getAllCart, updateCart } from '@/services/cartService'
 
 // store
 import { useAuthStore } from '@/stores/auth'
@@ -39,6 +39,7 @@ const countProduct = ref(1)
 const selectedImage = ref(0)
 const loadingSubmit = ref(false)
 const loadingAddToCart = ref(false)
+const carts = ref()
 
 const increment = () => {
   if (countProduct.value >= product.value.stock_quantity) return
@@ -99,6 +100,17 @@ const handleAddToCart = async () => {
   loadingAddToCart.value = true
 
   try {
+    if (carts?.value?.items.some((item) => item.product_id === product.value.id)) {
+      const cart = carts.value.items.find((item) => item.product_id === product.value.id)
+      updateCart(cart.id, {
+        quantity: cart.quantity + countProduct.value,
+      })
+      cart.quantity += countProduct.value
+      showToast('success', 'Add to Cart', 'Product has been added to cart.')
+
+      return
+    }
+
     await createCart({
       product_id: product.value.id,
       quantity: countProduct.value,
@@ -120,6 +132,9 @@ watch(
     if (newVal.user_id) {
       // get seller data
       seller.value = await getUserById(newVal.user_id)
+      carts.value = await getAllCart({
+        limit: 1000,
+      })
     }
   },
 )

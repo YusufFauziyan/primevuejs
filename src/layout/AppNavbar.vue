@@ -6,7 +6,7 @@ import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 
-//
+//hook
 const { darkTheme, setToogleDarkTheme } = useThemeStore()
 const { clearUser, ...auth } = useAuthStore()
 const cartCount = useCartStore()
@@ -14,6 +14,8 @@ const cartCount = useCartStore()
 // ref
 const isDarkTheme = ref(darkTheme)
 const openPopoverProfile = ref()
+const openInfoBanner = ref(JSON.parse(localStorage.getItem('openInfoBanner') || 'true'))
+
 const user = ref(auth.user)
 
 const toggleDarkMode = () => {
@@ -42,6 +44,11 @@ const handleRemoveUser = () => {
   user.value = null
 }
 
+const handleCloseInfoBanner = () => {
+  localStorage.setItem('openInfoBanner', JSON.stringify(false))
+  openInfoBanner.value = false
+}
+
 onMounted(() => {
   if (darkTheme) {
     document.documentElement.classList.add('app-dark')
@@ -51,14 +58,14 @@ onMounted(() => {
 
 <template>
   <div>
-    <div class="bg-primary py-2">
+    <div class="bg-primary py-2" v-if="openInfoBanner">
       <div class="flex justify-between container items-center">
         <div />
         <div class="flex items-center gap-2">
           <p class="text-xs text-primary-contrast">Sign up and get 20% off to your first order.</p>
           <a href="#" class="underline text-xs text-primary-contrast">Sign Up Now</a>
         </div>
-        <div class="cursor-pointer hover:opacity-50 duration-150">
+        <div class="cursor-pointer hover:opacity-50 duration-150" @click="handleCloseInfoBanner">
           <i class="pi pi-times text-primary-contrast" style="font-size: 0.7rem"></i>
         </div>
       </div>
@@ -102,7 +109,6 @@ onMounted(() => {
         <div v-if="user" class="flex items-end gap-6">
           <router-link to="/cart">
             <OverlayBadge
-              v-if="cartCount.totalCart > 0"
               :value="cartCount.totalCart"
               severity="danger"
               size="small"
@@ -111,14 +117,6 @@ onMounted(() => {
               <i class="pi pi-shopping-cart" style="font-size: 1rem"></i>
             </OverlayBadge>
           </router-link>
-
-          <Button
-            v-if="cartCount.totalCart < 1"
-            icon="pi pi-shopping-cart"
-            size="small"
-            variant="text"
-            class="cursor-pointer hover:opacity-80 duration-150"
-          />
 
           <Avatar
             icon="pi pi-user"

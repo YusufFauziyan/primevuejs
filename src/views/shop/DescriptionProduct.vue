@@ -25,6 +25,7 @@ const props = defineProps({
   },
 })
 
+// hook
 const router = useRouter()
 const toast = useToast()
 
@@ -225,15 +226,15 @@ watch(
         <div class="flex items-center gap-2">
           <div class="border shadow-lg ml-auto rounded-lg flex gap-4 items-center justify-between">
             <i
-              class="pi pi-plus cursor-pointer px-3 py-3 text-primary/60 border-r"
+              class="pi pi-minus cursor-pointer px-3 py-3 text-primary/60 border-r"
               style="font-size: 0.78rem"
-              @click="increment"
+              @click="decrement"
             ></i>
             <span class="text-xs font-bold px-2">{{ countProduct }}</span>
             <i
-              class="pi pi-minus cursor-pointer px-3 py-3 text-primary/60 border-l"
+              class="pi pi-plus cursor-pointer px-3 py-3 text-primary/60 border-l"
               style="font-size: 0.78rem"
-              @click="decrement"
+              @click="increment"
             ></i>
           </div>
           <button

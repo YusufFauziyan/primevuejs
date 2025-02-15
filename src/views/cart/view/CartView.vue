@@ -8,6 +8,7 @@ import { formatRupiah } from '@/utils/format-number'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useCartStore } from '@/stores/cart'
+import CheckoutView from '../CheckoutView.vue'
 
 // hook
 const toast = useToast()
@@ -18,6 +19,7 @@ const carts = ref([])
 const loadingCarts = ref(true)
 const debounceTimeout = ref(null)
 const selectedCart = ref(new Set())
+const openDialogCheckout = ref(false)
 const confirm = useConfirm()
 
 const calculateTotalPrice = (finalPrice, qty) => {
@@ -165,7 +167,7 @@ onMounted(fetchCarts)
   <main class="my-8">
     <p class="font-bold text-lg">Your Cart</p>
 
-    <div class="flex items-start gap-8 mt-6">
+    <div v-if="!loadingCarts && carts.length" class="flex items-start gap-8 mt-6">
       <div class="flex-1 flex flex-col gap-4 max-h-[75vh] overflow-y-auto">
         <div
           v-for="(cart, index) in carts"
@@ -273,10 +275,63 @@ onMounted(fetchCarts)
             <p class="text-sm font-bold">{{ formatRupiah(subtotal - totalDiscount) }}</p>
           </div>
         </div>
-        <Button label="Checkout" icon="pi pi-shopping-cart" variant="primary" size="small" />
+        <div class="flex flex-col gap-2">
+          <Button
+            label="Checkout"
+            icon="pi pi-shopping-cart"
+            variant="primary"
+            size="small"
+            :disabled="selectedCart.size < 1"
+            @click="openDialogCheckout = true"
+          />
+          <Button
+            label="Add Voucher"
+            icon="pi pi-ticket"
+            variant="text"
+            size="small"
+            @click="console.info('Comming Soon')"
+          />
+        </div>
       </div>
     </div>
+
+    <div
+      v-else-if="!loadingCarts && !carts.length"
+      class="flex flex-col gap-2 items-center justify-center place-self-center h-[75vh]"
+    >
+      <p class="text-primary">No items in your cart</p>
+      <Button
+        label="Go Shopping"
+        size="small"
+        as="router-link"
+        severity="secondary"
+        to="/shop"
+        icon="pi pi-shopping-cart"
+      />
+    </div>
   </main>
+
+  <Dialog
+    v-model:visible="openDialogCheckout"
+    :style="{
+      width: '100vw',
+      height: '100vh',
+      top: 0,
+      padding: 0,
+      margin: 0,
+      maxHeight: '97vh',
+      borderRadius: '10px 10px 0',
+    }"
+    position="bottom"
+    :modal="true"
+    :draggable="false"
+    :dismissable-mask="true"
+  >
+    <template #container>
+      <CheckoutView :checkout="carts.filter((f) => selectedCart.has(f.id))" />
+    </template>
+    <!-- Tombol close -->
+  </Dialog>
 
   <ConfirmPopup></ConfirmPopup>
 </template>
@@ -284,5 +339,9 @@ onMounted(fetchCarts)
 <style scoped>
 img {
   mix-blend-mode: multiply;
+}
+
+.p-dialog-header {
+  display: none !important;
 }
 </style>

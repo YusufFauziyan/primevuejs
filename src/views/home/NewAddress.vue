@@ -44,11 +44,11 @@ const addressData = ref({
   street_address: '',
   city: '',
   postal_code: '',
-  default_address: '',
+  default_address: true,
   title_address: '',
 })
 const loadingSubmit = ref(false)
-const dialogAddress = ref(false)
+const dialogAddress = ref(true)
 const otpValue = ref('')
 const errorOtp = ref(false)
 const countdown = ref(0)

@@ -79,6 +79,6 @@ watchEffect(() => {})
     <DressStyle />
     <HappyCustomer />
 
-    <NewAddress v-if="!authStore.user?.verified_phone_number" />
+    <NewAddress v-if="authStore.user && !authStore.user?.verified_phone_number" />
   </main>
 </template>

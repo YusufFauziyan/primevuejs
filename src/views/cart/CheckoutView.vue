@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted, computed, ref } from 'vue'
+
 // form
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
-import { VueTelInput } from 'vue-tel-input'
+
+//
 import { useAuthStore } from '@/stores/auth'
 import { getUserById } from '@/services/userService'
 import { getAllAddress } from '@/services/addressService'

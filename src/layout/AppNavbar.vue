@@ -6,6 +6,11 @@ import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 
+// components
+import ProfileSetting from '@/components/navbar/ProfileSetting.vue'
+import AddressSetting from '@/components/navbar/AddressSetting.vue'
+import ResetPasswordSetting from '@/components/navbar/ResetPasswordSetting.vue'
+
 //hook
 const { darkTheme, setToogleDarkTheme } = useThemeStore()
 const { clearUser, ...auth } = useAuthStore()
@@ -13,10 +18,16 @@ const cartCount = useCartStore()
 
 // ref
 const isDarkTheme = ref(darkTheme)
-const openPopoverProfile = ref()
 const openInfoBanner = ref(JSON.parse(localStorage.getItem('openInfoBanner') || 'true'))
+const menu = ref()
+const openDialogSetting = ref(true)
+const currentSetting = ref(0)
 
 const user = ref(auth.user)
+
+const toggleMenu = (event) => {
+  menu.value.toggle(event)
+}
 
 const toggleDarkMode = () => {
   if (!document.startViewTransition) {
@@ -28,10 +39,6 @@ const toggleDarkMode = () => {
   document.startViewTransition(() => executeDarkModeToggle())
 }
 
-const togglePopoverProfile = (e) => {
-  openPopoverProfile.value.toggle(e)
-}
-
 const executeDarkModeToggle = () => {
   document.documentElement.classList.toggle('app-dark')
   isDarkTheme.value = !isDarkTheme.value
@@ -40,7 +47,6 @@ const executeDarkModeToggle = () => {
 
 const handleRemoveUser = () => {
   clearUser()
-  openPopoverProfile.value.hide()
   user.value = null
 }
 
@@ -48,6 +54,54 @@ const handleCloseInfoBanner = () => {
   localStorage.setItem('openInfoBanner', JSON.stringify(false))
   openInfoBanner.value = false
 }
+
+const toogleAvatar = ref([
+  {
+    label: 'Payment',
+    items: [
+      {
+        label: 'Transaction',
+        icon: 'pi pi-money-bill',
+      },
+      {
+        label: 'Shipping',
+        icon: 'pi pi-truck',
+      },
+    ],
+  },
+  {
+    label: 'Profile',
+    items: [
+      {
+        label: 'Settings',
+        icon: 'pi pi-cog',
+        command: () => {
+          openDialogSetting.value = true
+        },
+      },
+      {
+        label: 'Logout',
+        icon: 'pi pi-sign-out',
+        command: handleRemoveUser,
+      },
+    ],
+  },
+])
+
+const LIST_SETTING = ref([
+  {
+    label: 'Profile',
+    icon: 'pi pi-user-edit',
+  },
+  {
+    label: 'Address',
+    icon: 'pi pi-map-marker',
+  },
+  {
+    label: 'Reset Password',
+    icon: 'pi pi-key',
+  },
+])
 
 onMounted(() => {
   if (darkTheme) {
@@ -122,32 +176,79 @@ onMounted(() => {
             icon="pi pi-user"
             class="bg-primary-contrast text-primary cursor-pointer hover:opacity-80 duration-150"
             shape="circle"
-            @click="togglePopoverProfile"
+            @click="toggleMenu"
+            aria-haspopup="true"
+            aria-controls="overlay_menu"
           />
 
-          <Popover ref="openPopoverProfile" class="">
-            <div class="flex flex-col gap-2">
-              <Button
-                label="Profile"
-                icon="pi pi-user"
-                variant="text"
-                size="small"
-                class="w-full"
-              />
-              <Button
-                label="Logout"
-                icon="pi pi-sign-out"
-                variant="text"
-                size="small"
-                class="w-full"
-                @click="handleRemoveUser"
-              />
-            </div>
-          </Popover>
+          <Menu ref="menu" id="overlay_menu" :model="toogleAvatar" :popup="true">
+            <!-- <template #submenulabel="{ item }">
+              <span class="text-primary font-bold">{{ item.label }}</span>
+            </template> -->
+          </Menu>
         </div>
       </div>
     </div>
   </div>
+
+  <Dialog
+    v-model:visible="openDialogSetting"
+    modal
+    header="Header"
+    :style="{ width: '60vw' }"
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
+    <template #container>
+      <div class="flex">
+        <div class="border-r-2 w-[170px]">
+          <div class="p-4 border-b-2 h-[65px] flex items-center">
+            <p class="font-bold text-xl">Settings</p>
+          </div>
+          <div class="my-4 flex flex-col">
+            <div
+              v-for="(item, index) in LIST_SETTING"
+              :key="index"
+              :class="[
+                'px-4 py-2 flex gap-2 cursor-pointer items-center duration-150 relative',
+                currentSetting === index
+                  ? 'bg-primary-100 dark:text-primary-contrast '
+                  : 'hover:bg-primary-100 dark:hover:text-primary-contrast',
+              ]"
+              @click="currentSetting = index"
+            >
+              <div
+                v-if="currentSetting === index"
+                class="h-full bg-primary dark:bg-primary-contrast absolute right-0 w-0.5"
+              />
+              <i :class="[item.icon, 'opacity-60']" style="font-size: 0.9rem"></i>
+              <p class="font-semibold">{{ item.label }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="p-4 border-b-2 h-[65px] flex items-center justify-end flex-1">
+            <Button
+              icon="pi pi-times"
+              size="small"
+              variant="text"
+              rounded
+              @click="openDialogSetting = false"
+            />
+          </div>
+
+          <div class="overflow-auto h-[55vh]" v-if="currentSetting === 0">
+            <ProfileSetting :user="user" />
+          </div>
+          <div class="overflow-auto h-[55vh]" v-if="currentSetting === 1">
+            <AddressSetting :user="user" />
+          </div>
+          <div class="overflow-auto h-[55vh]" v-if="currentSetting === 2">
+            <ResetPasswordSetting />
+          </div>
+        </div>
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped>
@@ -170,5 +271,16 @@ onMounted(() => {
 
 .link:hover::after {
   width: 70%; /* Lebar underline menjadi 100% saat hover */
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dialog-body {
+  flex: 1;
+  overflow-y: auto;
 }
 </style>

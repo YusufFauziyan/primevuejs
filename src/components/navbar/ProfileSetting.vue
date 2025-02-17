@@ -1,19 +1,20 @@
 <script setup>
+import { ref } from 'vue'
+
 // form
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 
+import axiosInstance from '@/utils/api/axiosInstance'
+import { useAuthStore } from '@/stores/auth'
+
 // components
+const avatarFile = ref(null)
+const fileInput = ref(null) // Tambahkan ref untuk input file
+const loadingSubmit = ref(false)
 
-// define
-const props = defineProps({
-  user: {
-    type: Object,
-    required: true,
-  },
-})
-
-console.log(props.user)
+// store
+const authStore = useAuthStore()
 
 // validation
 const schema = yup.object({
@@ -25,9 +26,9 @@ const schema = yup.object({
 const { handleSubmit, resetForm } = useForm({
   validationSchema: schema,
   initialValues: {
-    name: props.user.username,
-    phone: props.user.phone_number,
-    email: props.user.email,
+    name: authStore.user.username,
+    phone: authStore.user.phone_number,
+    email: authStore.user.email,
   },
 })
 
@@ -36,9 +37,45 @@ const { value: name, errorMessage: nameError } = useField('name')
 const { value: phone, errorMessage: phoneError } = useField('phone')
 const { value: email, errorMessage: emailError } = useField('email')
 
+// handle file change
+const onFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    avatarFile.value = {
+      url: URL.createObjectURL(file),
+      file,
+    }
+  }
+}
+
+// trigger file input click
+const triggerFileInput = () => {
+  fileInput.value.click() // Memicu klik pada input file
+}
+
 // onsubmit
 const onSubmit = handleSubmit(async (values) => {
-  console.log(values)
+  loadingSubmit.value = true
+
+  const formData = new FormData()
+  formData.append('username', values.name)
+  if (avatarFile.value) {
+    formData.append('file', avatarFile.value.file)
+  }
+
+  try {
+    await axiosInstance.put(`/collection/user/${authStore.user.id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    authStore.initializeSession()
+  } catch (error) {
+    console.error('Login failed:', error)
+  } finally {
+    loadingSubmit.value = false
+  }
 })
 </script>
 
@@ -53,14 +90,33 @@ const onSubmit = handleSubmit(async (values) => {
         </p>
         <div class="flex items-center gap-8 mt-1">
           <Avatar
-            image="https://primefaces.org/cdn/primevue/images/organization/walter.jpg"
+            v-if="avatarFile || authStore.user.avatar"
+            :image="avatarFile ? avatarFile.url : authStore.user.avatar?.url"
+            shape="circle"
+            size="xlarge"
+            class="shadow-lg"
+          />
+          <Avatar
+            v-if="!avatarFile && !authStore.user.avatar"
+            icon="pi pi-user"
             shape="circle"
             size="xlarge"
           />
 
           <div class="flex items-center gap-4">
-            <Button label="Change Picture" size="small" />
-            <Button label="Delete Picture" size="small" severity="danger" variant="text" raised />
+            <label for="avatar" class="cursor-pointer text-primary">
+              <Button label="Change Picture" size="small" @click="triggerFileInput" />
+              <input
+                type="file"
+                id="avatar"
+                class="hidden"
+                accept="image/*"
+                @change="onFileChange"
+                ref="fileInput"
+              />
+            </label>
+
+            <!-- <Button label="Delete Picture" size="small" severity="danger" variant="text" raised /> -->
           </div>
         </div>
       </div>
@@ -135,7 +191,7 @@ const onSubmit = handleSubmit(async (values) => {
 
       <!-- action -->
       <div class="justify-end flex mt-2">
-        <Button type="submit" label="Save Changes" size="small" />
+        <Button type="submit" label="Save Changes" size="small" :loading="loadingSubmit" />
       </div>
     </main>
   </form>

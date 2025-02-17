@@ -8,6 +8,11 @@
 /* Variabel CSS */
 
 /* Global styles untuk body */
+
+body {
+  @apply dark:text-gray-300;
+}
+
 @layer base {
   body {
     @apply min-h-screen text-[15px] leading-relaxed transition-all duration-500;

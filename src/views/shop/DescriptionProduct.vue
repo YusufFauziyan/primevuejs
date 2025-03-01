@@ -143,7 +143,7 @@ watch(
 
 <template>
   <div class="flex gap-8 my-4">
-    <div class="w-[60%] h-[50vh] flex gap-4">
+    <div class="w-[60%] h-[50vh] sticky top-10 flex gap-4">
       <!-- Thumbnail Images (Left Side) -->
       <div :class="['flex flex-col gap-4', { 'justify-between': product?.images.length >= 5 }]">
         <div
@@ -173,52 +173,56 @@ watch(
         />
       </div>
     </div>
-    <div class="flex-1 h-[50vh] flex flex-col gap-4 justify-between">
+    <div class="flex-1 flex flex-col gap-4 justify-between">
       <!-- Product Info -->
       <div class="flex flex-col gap-2">
-        <div class="flex justify-between gap-4 items-center mb-2">
-          <div class="flex items-center gap-2">
-            <Avatar
-              :image="faker.image.avatar()"
-              :name="seller?.username"
-              size="small"
-              shape="circle"
-            />
-            <p>{{ seller?.username }}</p>
-          </div>
+        <div class="flex flex-col gap-2">
+          <div class="flex justify-between gap-4 items-center mb-2">
+            <div class="flex items-center gap-2">
+              <Avatar
+                :image="faker.image.avatar()"
+                :name="seller?.username"
+                size="small"
+                shape="circle"
+              />
+              <p>{{ seller?.username }}</p>
+            </div>
 
-          <p class="text-xs text-primary-400">
-            Stock Left: <span>{{ product?.stock_quantity }}</span>
-          </p>
-        </div>
-        <h1 class="text-2xl font-bold text-ellipsis">{{ product?.name }}</h1>
-        <div class="flex items-center gap-2">
-          <span class="flex gap-1">
-            <i
-              v-for="n in 5"
-              :key="n"
-              class="pi pi-star-fill text-yellow-400"
-              style="font-size: 1rem"
+            <p class="text-xs text-primary-400">
+              Stock Left: <span>{{ product?.stock_quantity }}</span>
+            </p>
+          </div>
+          <h1 class="text-2xl font-bold text-ellipsis">{{ product?.name }}</h1>
+          <div class="flex items-center gap-2">
+            <span class="flex gap-1">
+              <i
+                v-for="n in 5"
+                :key="n"
+                class="pi pi-star-fill text-yellow-400"
+                style="font-size: 1rem"
+              />
+            </span>
+            <p class="text-primary-400">5/5</p>
+          </div>
+          <div class="flex items-center gap-4 mt-4">
+            <p class="font-bold text-2xl">
+              {{ formatRupiah(Number(product?.price) - Number(product?.discount)) }}
+            </p>
+            <p class="font-medium line-through opacity-50" v-if="product?.discount">
+              {{ formatRupiah(Number(product?.price)) }}
+            </p>
+            <Chip
+              :label="`-${Math.round((Number(product?.discount) / Number(product?.price)) * 100)}%`"
+              size="small"
+              unstyled
+              class="bg-red-100 text-red-500 px-4 py-2 rounded-full text-xs font-bold"
+              v-if="product?.discount"
             />
-          </span>
-          <p class="text-primary-400">5/5</p>
+          </div>
         </div>
-        <div class="flex items-center gap-4 mt-4">
-          <p class="font-bold text-2xl">
-            {{ formatRupiah(Number(product?.price) - Number(product?.discount)) }}
-          </p>
-          <p class="font-medium line-through opacity-50" v-if="product?.discount">
-            {{ formatRupiah(Number(product?.price)) }}
-          </p>
-          <Chip
-            :label="`-${Math.round((Number(product?.discount) / Number(product?.price)) * 100)}%`"
-            size="small"
-            unstyled
-            class="bg-red-100 text-red-500 px-4 py-2 rounded-full text-xs font-bold"
-            v-if="product?.discount"
-          />
+        <div class="overflow-auto flex-1">
+          <p class="text-sm text-primary/75 mt-4">{{ product?.description }}</p>
         </div>
-        <p class="text-sm text-primary/75 mt-4">{{ product?.description }}</p>
       </div>
 
       <!-- Add to Cart -->

@@ -45,6 +45,18 @@ const router = createRouter({
               component: () => import('@/views/cart/view/CartView.vue'),
               beforeEnter: requireAuth,
             },
+            {
+              path: '/transaction',
+              name: 'Transaction',
+              component: () => import('@/views/transaction/view/TransactionView.vue'),
+              beforeEnter: requireAuth,
+            },
+            {
+              path: '/transaction/:id',
+              name: 'TransactionDetail',
+              component: () => import('@/views/transaction/view/TransactionDetailView.vue'),
+              props: true,
+            },
           ],
         },
       ],

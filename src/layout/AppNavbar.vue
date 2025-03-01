@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 // store pinia
 import { useThemeStore } from '@/stores/theme'
@@ -15,12 +16,13 @@ import ResetPasswordSetting from '@/components/navbar/ResetPasswordSetting.vue'
 const { darkTheme, setToogleDarkTheme } = useThemeStore()
 const { clearUser, ...auth } = useAuthStore()
 const cartCount = useCartStore()
+const router = useRouter()
 
 // ref
 const isDarkTheme = ref(darkTheme)
 const openInfoBanner = ref(JSON.parse(localStorage.getItem('openInfoBanner') || 'true'))
 const menu = ref()
-const openDialogSetting = ref(true)
+const openDialogSetting = ref(false)
 const currentSetting = ref(0)
 
 const user = ref(auth.user)
@@ -62,10 +64,9 @@ const toogleAvatar = ref([
       {
         label: 'Transaction',
         icon: 'pi pi-money-bill',
-      },
-      {
-        label: 'Shipping',
-        icon: 'pi pi-truck',
+        command: () => {
+          router.push('/transaction')
+        },
       },
     ],
   },
@@ -173,8 +174,8 @@ onMounted(() => {
           </router-link>
 
           <Avatar
-            icon="pi pi-user"
-            class="bg-primary-contrast text-primary cursor-pointer hover:opacity-80 duration-150"
+            :image="user?.avatar?.url"
+            class="bg-primary-contrast text-primary cursor-pointer hover:opacity-80 duration-150 shadow"
             shape="circle"
             @click="toggleMenu"
             aria-haspopup="true"

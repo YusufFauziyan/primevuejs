@@ -38,7 +38,11 @@ const onSubmit = handleSubmit(async (values) => {
     <main class="py-4 px-6 flex flex-col gap-4 h-full">
       <p class="text-xl font-bold">Create New Password</p>
 
-      <div class="flex items-center h-full justify-center flex-col">
+      <div class="flex items-center justify-center h-full">
+        <p class="font-bold text-xl">Comming Soon!</p>
+      </div>
+
+      <!-- <div class="flex items-center h-full justify-center flex-col">
         <div class="w-[400px]">
           <div>
             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-bold mb-1"
@@ -83,7 +87,7 @@ const onSubmit = handleSubmit(async (values) => {
             <Button type="submit" label="Reset Password" class="w-full" />
           </div>
         </div>
-      </div>
+      </div> -->
     </main>
   </form>
 </template>

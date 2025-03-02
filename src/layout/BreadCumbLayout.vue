@@ -52,6 +52,8 @@ const items = computed(() => {
 
 // Check for product ID in URL
 const checkForProductId = () => {
+  if (!route.path.includes('shop')) return
+
   console.log('Checking for product ID in:', route.path) // Debug log
   const pathSegments = route.path.split('/').filter((segment) => segment !== '')
   const productId = pathSegments.find((segment) => segment.length > 25)

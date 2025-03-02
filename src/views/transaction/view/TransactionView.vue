@@ -31,7 +31,9 @@ const getSeverity = (status) => {
 const fetchTransactions = async () => {
   loading.value = true
   try {
-    const res = await getAllOrder()
+    const res = await getAllOrder({
+      limit: 500,
+    })
 
     transactions.value = res.items.map((item) => {
       const totalAmount = item.orders.reduce(

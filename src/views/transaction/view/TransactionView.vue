@@ -15,15 +15,16 @@ const filters = ref({
 
 const getSeverity = (status) => {
   switch (status) {
-    case 'Cancelled':
+    case 'cancelled':
       return 'danger'
-    case 'Paid':
+    case 'paid':
+    case 'settlement':
       return 'success'
-    case 'Shipped':
+    case 'shipped':
       return 'info'
-    case 'Pending':
+    case 'pending':
       return 'warn'
-    case 'Delivered':
+    case 'delivered':
       return 'primary'
   }
 }
@@ -54,7 +55,7 @@ const fetchTransactions = async () => {
         formattedAmount: formatRupiah(totalAmount),
         date: new Date(item.order_date),
         formattedDate: fDateTime(item.order_date),
-        status: item.status,
+        status: item?.payment?.transaction_status ?? 'Pending',
         addressTitle: item.address.title_address,
         address: `${item.address.street_address}, ${item.address.city}, ${item.postal_code}`,
       }
@@ -110,7 +111,7 @@ fetchTransactions()
               :key="index"
             >
               <p class="font-bold text-sm">
-                {{ data.products.map((product) => product.name).join(', ') }}
+                {{ product.name }}
               </p>
               <div class="flex justify-between">
                 <p class="text-xs text-gray-500">{{ product.quantity }} items</p>

@@ -27,15 +27,16 @@ const handleNavigateProduct = (id) => {
 // function
 const getSeverity = (status) => {
   switch (status) {
-    case 'Cancelled':
+    case 'cancelled':
       return 'danger'
-    case 'Paid':
+    case 'paid':
+    case 'settlement':
       return 'success'
-    case 'Shipped':
+    case 'shipped':
       return 'info'
-    case 'Pending':
+    case 'pending':
       return 'warn'
-    case 'Delivered':
+    case 'delivered':
       return 'primary'
   }
 }
@@ -74,7 +75,10 @@ onMounted(() => {
         <p class="text-sm text-gray-500">Transaction ID: {{ id }}</p>
       </div>
 
-      <Tag :value="transaction?.status" :severity="getSeverity(transaction?.status)" />
+      <Tag
+        :value="transaction?.payment?.transaction_status"
+        :severity="getSeverity(transaction?.payment?.transaction_status)"
+      />
     </div>
     <div class="my-12 flex flex-col gap-6">
       <div class="grid grid-cols-3 gap-2">
@@ -178,7 +182,18 @@ onMounted(() => {
           </div>
           <div>
             <p class="font-medium">Payment Method</p>
-            <p class="text-sm text-gray-500">Bank Transfer</p>
+            <p class="text-sm text-gray-500 capitalize">
+              {{ transaction?.payment?.payment_type.replace('_', ' ') }}
+            </p>
+          </div>
+          <div v-if="transaction?.payment?.transaction_status === 'pending'">
+            <p class="font-medium">Continue Payment</p>
+            <a
+              :href="transaction?.payment?.payment_link"
+              target="_blank"
+              class="text-blue-500 hover:underline text-sm"
+              >Payment Here</a
+            >
           </div>
         </div>
       </div>

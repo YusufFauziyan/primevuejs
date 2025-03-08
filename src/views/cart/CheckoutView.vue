@@ -29,36 +29,18 @@ const toast = useToast()
 
 // ref
 const loadingSubmit = ref(false)
-
-// validation
-const schema = yup.object({
-  name: yup.string().required('Name is required'),
-  address: yup.string().required('Address is required'),
-  phone: yup.string().required('Phone is required'),
-  city: yup.string().required('City is required'),
-  zipCode: yup.string().required('Zip Code is required'),
-})
+const dialogChangeAddress = ref(false)
+const selectedAddress = ref()
+const listAddress = ref([])
 
 // form
-const { handleSubmit, resetForm } = useForm({
-  validationSchema: schema,
-})
-
-// define form
-const { value: addressId, errorMessage: addressIdError } = useField('addressId')
-const { value: name, errorMessage: nameError } = useField('name')
-const { value: phone, errorMessage: phoneError } = useField('phone')
-const { value: address, errorMessage: addressError } = useField('address')
-const { value: city, errorMessage: cityError } = useField('city')
-const { value: zipCode, errorMessage: zipCodeError } = useField('zipCode')
 
 const showToast = (severity, summary, detail) => {
   toast.add({ severity, summary, detail, life: 3000 })
 }
 
 // submit form
-const onSubmit = handleSubmit(async (values) => {
-  console.log(values)
+const onSubmit = async () => {
   loadingSubmit.value = true
 
   const orders = props.checkout.map((item) => ({
@@ -67,11 +49,12 @@ const onSubmit = handleSubmit(async (values) => {
   }))
 
   try {
-    if (!values.addressId) return showToast('error', 'Address', 'Your default address not found!')
+    if (!selectedAddress.value.addressId)
+      return showToast('error', 'Address', 'Your default address not found!')
 
     const order = await createOrder({
       status: 'Pending',
-      address_id: values.addressId,
+      address_id: selectedAddress.value.addressId,
       orders,
     })
 
@@ -83,6 +66,7 @@ const onSubmit = handleSubmit(async (values) => {
     window.snap.pay(transactionToken, {
       onSuccess: async () => {
         showToast('success', 'Payment Success', 'Thank you for your payment!')
+
         //   remove selected product from cart
         await Promise.all(
           props.checkout.map(async (item) => {
@@ -90,7 +74,16 @@ const onSubmit = handleSubmit(async (values) => {
           }),
         )
       },
-      onPending: () => showToast('warn', 'Payment Pending', 'Your payment is being processed.'),
+      onPending: async () => {
+        showToast('warn', 'Payment Pending', 'Your payment is being processed.')
+
+        //   remove selected product from cart
+        await Promise.all(
+          props.checkout.map(async (item) => {
+            await deleteCart(item.id)
+          }),
+        )
+      },
       onError: () => showToast('error', 'Payment Failed', 'Please try again.'),
       onClose: () => console.log('Payment popup closed.'),
     })
@@ -100,7 +93,7 @@ const onSubmit = handleSubmit(async (values) => {
   } finally {
     loadingSubmit.value = false
   }
-})
+}
 
 const totalPrice = computed(() => {
   return props.checkout.reduce((acc, curr) => acc + curr.product.final_price * curr.quantity, 0)
@@ -110,18 +103,25 @@ const fetchAddress = async () => {
   try {
     const response = await getAllAddress()
 
+    listAddress.value = response.map((address) => ({
+      addressId: address.id,
+      code: address.id,
+      name: address.title_address,
+      city: address.city,
+      zipCode: Number(address.postal_code),
+      address: `${address.street_address}, ${address.city}, ${address.postal_code}`,
+    }))
+
     const filterDefaultAddress = response.filter((address) => address.default_address)[0]
 
-    resetForm({
-      values: {
-        addressId: filterDefaultAddress.id,
-        name: user.username,
-        phone: user.phone_number,
-        city: filterDefaultAddress.city,
-        zipCode: Number(filterDefaultAddress.postal_code),
-        address: filterDefaultAddress.street_address,
-      },
-    })
+    selectedAddress.value = {
+      addressId: filterDefaultAddress.id,
+      code: filterDefaultAddress.id,
+      name: filterDefaultAddress.title_address,
+      city: filterDefaultAddress.city,
+      zipCode: Number(filterDefaultAddress.postal_code),
+      address: `${filterDefaultAddress.street_address}, ${filterDefaultAddress.city}, ${filterDefaultAddress.postal_code}`,
+    }
   } catch (error) {
     console.log(error)
   }
@@ -138,10 +138,21 @@ onMounted(fetchAddress)
 
         <div class="mt-12 grid grid-cols-3 gap-6">
           <div class="col-span-2">
-            <div class="rounded-lg flex items-center gap-4 px-6 py-4 border shadow">
-              <i class="pi pi-map-marker" style="font-size: 0.7rem"></i>
+            <div class="rounded-lg flex items-center gap-4 px-6 py-4 border shadow justify-between">
+              <div class="flex items-center gap-4">
+                <i class="pi pi-map-marker" style="font-size: 0.7rem"></i>
 
-              <p class="font-bold text-xs">SHIPPING ADDRESS</p>
+                <p class="font-bold text-xs">{{ selectedAddress?.name }}</p>
+              </div>
+
+              <div>
+                <Button
+                  label="Change Address"
+                  size="small"
+                  variant="text"
+                  @click="dialogChangeAddress = true"
+                />
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3 mt-6">
@@ -152,19 +163,14 @@ onMounted(fetchAddress)
                   >Your Name</label
                 >
                 <InputText
-                  v-model="name"
+                  :value="user?.username"
                   id="name"
                   type="text"
                   placeholder="Your Name"
                   class="w-full"
-                  :invalid="!!nameError"
                   size="small"
                   readonly
                 />
-
-                <Message v-if="nameError" severity="error" variant="simple" size="small">{{
-                  nameError
-                }}</Message>
               </div>
 
               <div>
@@ -174,19 +180,14 @@ onMounted(fetchAddress)
                   >Phone Number</label
                 >
                 <InputText
-                  v-model="phone"
+                  :value="user?.phone_number"
                   id="phone"
                   type="text"
                   placeholder="Phone"
                   class="w-full"
-                  :invalid="!!phoneError"
                   size="small"
                   readonly
                 />
-
-                <Message v-if="phoneError" severity="error" variant="simple" size="small">{{
-                  phoneError
-                }}</Message>
               </div>
 
               <div>
@@ -196,19 +197,14 @@ onMounted(fetchAddress)
                   >City</label
                 >
                 <InputText
-                  v-model="city"
+                  :value="selectedAddress?.city"
                   id="city"
                   type="text"
                   placeholder="City"
                   class="w-full"
-                  :invalid="!!cityError"
                   size="small"
                   readonly
                 />
-
-                <Message v-if="cityError" severity="error" variant="simple" size="small">{{
-                  cityError
-                }}</Message>
               </div>
 
               <div>
@@ -218,19 +214,14 @@ onMounted(fetchAddress)
                   >Zip Code</label
                 >
                 <InputText
-                  v-model="zipCode"
+                  :value="selectedAddress?.zipCode"
                   id="zipCode"
                   type="number"
                   placeholder="Zip Code"
                   class="w-full"
-                  :invalid="!!zipCodeError"
                   size="small"
                   readonly
                 />
-
-                <Message v-if="zipCodeError" severity="error" variant="simple" size="small">{{
-                  zipCodeError
-                }}</Message>
               </div>
 
               <div class="col-span-2">
@@ -240,19 +231,14 @@ onMounted(fetchAddress)
                   >Address</label
                 >
                 <Textarea
-                  v-model="address"
+                  :value="selectedAddress?.address"
                   id="address"
                   rows="4"
                   placeholder="Input your Address"
                   class="w-full resize-none col-span-2"
-                  :invalid="!!addressError"
                   size="small"
                   readonly
                 />
-
-                <Message v-if="addressError" severity="error" variant="simple" size="small">{{
-                  addressError
-                }}</Message>
               </div>
             </div>
           </div>
@@ -349,6 +335,33 @@ onMounted(fetchAddress)
       </div>
     </form>
   </main>
+
+  <Dialog
+    v-model:visible="dialogChangeAddress"
+    modal
+    header="Edit Address"
+    :style="{ width: '25rem' }"
+  >
+    <div class="mb-4">
+      <Select
+        v-model="selectedAddress"
+        :options="listAddress"
+        optionLabel="name"
+        placeholder="Select address"
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <Button
+        type="button"
+        label="Cancel"
+        severity="secondary"
+        @click="dialogChangeAddress = false"
+      ></Button>
+      <Button type="button" label="Save" @click="dialogChangeAddress = false"></Button>
+    </div>
+  </Dialog>
 </template>
 
 <style scoped>

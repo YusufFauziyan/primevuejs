@@ -147,7 +147,7 @@ watch(
       <!-- Thumbnail Images (Left Side) -->
       <div :class="['flex flex-col gap-4', { 'justify-between': product?.images.length >= 5 }]">
         <div
-          v-for="({ url }, index) in product?.images.slice(0, 4)"
+          v-for="({ url }, index) in product?.images.slice(0, 5)"
           :key="index"
           :class="[
             'w-[150px] rounded-lg shadow-md overflow-hidden cursor-pointer bg-primary-100 flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-105',
@@ -158,10 +158,10 @@ watch(
           <img :src="url" alt="Thumbnail" class="w-full h-full object-cover" />
         </div>
         <div
-          v-if="product?.images.length >= 5"
+          v-if="product?.images.length >= 6"
           class="w-[150px] h-[150px] rounded-lg shadow-md overflow-hidden cursor-pointer border flex items-center justify-center"
         >
-          <p class="font-medium text-xs">+{{ product?.images.length - 4 }} More</p>
+          <p class="font-medium text-xs">+{{ product?.images.length - 5 }} More</p>
         </div>
       </div>
       <!-- Main Image (Right Side) -->

@@ -48,7 +48,7 @@ const addressData = ref({
   title_address: '',
 })
 const loadingSubmit = ref(false)
-const dialogAddress = ref(true)
+const dialogAddress = ref(false)
 const otpValue = ref('')
 const errorOtp = ref(false)
 const countdown = ref(0)

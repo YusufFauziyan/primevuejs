@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 // store pinia
@@ -25,7 +25,15 @@ const menu = ref()
 const openDialogSetting = ref(false)
 const currentSetting = ref(0)
 
-const user = ref(auth.user)
+const user = ref(null)
+
+watch(
+  () => auth.user,
+  (newUser) => {
+    user.value = newUser
+  },
+  { immediate: true },
+)
 
 const toggleMenu = (event) => {
   menu.value.toggle(event)
